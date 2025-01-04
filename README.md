@@ -3,6 +3,13 @@ A simple RMM for viewing activity of computers on your local network. Created wi
 
 It allows a remote entity to view an ffmpeg stream of the monitored computer's screen over the local network.
 
+# Configuration
+
+Look for `const ip = ""; // INSERT YOUR LOCAL IP` in index.html and put in your machine's local ip.
+You can find it with `ifconfig` on Mac and `ipconfig` on Windows.
+
+`start_RMM.bat`: the default platform is windows. You can open it and replace `server-windows.js` with `server-macos.js` if needed.
+
 # MacOS
 
 run `node server.js` in the project folder to stream.
