@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Video Stream</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #000; /* Optional: for a better viewing experience */
+      }
+      video {
+        max-width: 100%; /* Limit width to the page width */
+        max-height: 100%; /* Limit height to the page height */
+        object-fit: contain; /* Maintain aspect ratio */
+      }
+    </style>
+  </head>
+  <body>
+    <video id="videoPlayer" controls autoplay></video>
+    <script>
+      const ip = ""; // INSERT YOUR LOCAL IP
+      const hostname =
+        window.location.hostname === "localhost"
+          ? ip
+          : window.location.hostname;
+      const ws = new WebSocket(`ws://${hostname}:3000`);
+
+      const video = document.getElementById("videoPlayer");
+      const mediaSource = new MediaSource();
+      let sourceBuffer;
+
+      video.src = URL.createObjectURL(mediaSource);
+      video.load();
+
+      mediaSource.addEventListener("sourceopen", () => {
+        const ws = new WebSocket(`ws://${hostname}:3000`);
+        sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs="vp8"');
+
+        let queue = [];
+        let isProcessing = false;
+
+        function processQueue() {
+          if (!isProcessing && queue.length > 0 && !sourceBuffer.updating) {
+            isProcessing = true;
+            const data = queue.shift();
+            try {
+              sourceBuffer.appendBuffer(data);
+            } catch (error) {
+              console.error("Buffer append error:", error);
+            }
+          }
+        }
+
+        sourceBuffer.addEventListener("updateend", () => {
+          isProcessing = false;
+          processQueue();
+        });
+
+        ws.onmessage = (event) => {
+          event.data.arrayBuffer().then((buffer) => {
+            queue.push(buffer);
+            processQueue();
+          });
+        };
+
+        video.muted = true;
+        video.play().catch((err) => console.error("Video play error:", err));
+      });
+    </script>
+  </body>
+</html>
