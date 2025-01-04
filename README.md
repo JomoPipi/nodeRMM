@@ -12,7 +12,9 @@ You can find it with `ifconfig` on Mac and `ipconfig` on Windows.
 
 # MacOS
 
-run `node server.js` in the project folder to stream.
+run `node server.js` in the project folder to stream. 
+
+## TODO: make it run on the background and/or on startup if needed.
 
 # Windows
 
